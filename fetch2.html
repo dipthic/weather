@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta2/css/all.min.css" />
+    <style>
+        body{
+           
+            background-image:url("https://t3.ftcdn.net/jpg/02/90/89/76/360_F_290897614_7RdAsk2GmumcGWZ2qklmV74hKlNmznSx.jpg");
+            background-repeat: no-repeat;
+            background-size: cover;
+          
+        }
+        #search{
+            
+            width: 40%;
+            height: 60px;
+            margin: auto;
+            border-radius: 20px;
+            display: flex;
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+            background: crimson;
+        }
+        #city {
+            margin-top: 10px;
+            font-size: 18px;
+            padding: 5px;
+            width: 50%;
+            height: 25px;
+            margin-left: 20px;
+            border-radius: 10px;
+        }
+        img{
+            width: 25%;
+            height: 60px;
+            border-radius: 20px;
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+        }
+        button{
+            width: 15%;
+            height: 38px;
+            margin-top: 10px;
+            border-radius: 10px;
+            background: navy;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+        }
+       #sub_con{
+            display: flex;
+            width: 70%;
+            margin: auto;
+            margin-top: 50px;
+            justify-content: space-evenly;
+        }
+        #data{
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+            width: 40%;
+            font-size: 18px;
+            padding: 10px;
+            
+            background: white;
+        }
+        #map{
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+            margin-left: 200px;
+        }
+       #days{
+           
+           display: flex;
+           width: 70%;
+           margin: auto;
+           justify-content: space-between;
+       }
+       .box1{
+           
+           background:url("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTEhGVuuaHi3bhc7ZxceW9N0xukB8R0UFJFTQ&usqp=CAU");
+           box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+           color: white;
+           font-weight: bold;
+           padding: 5px;
+           text-align: center;
+           margin-top: 50px;
+       }
+       .box2{
+           
+           text-align: center;
+           font-size: 18px;
+           font-weight: bold;
+
+       }
+       .imge{
+           background: crimson;
+           width: 95%;
+           height: 50%;
+           filter: drop-shadow(5px 5px 5px #222);
+           margin-top: 10px;
+       }
+       .fa-sun{
+           color:red;
+       }
+    </style>
+</head>
+<body>
+    <div id="search">
+    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRRkPUYsf0e6d3lNLnkFyL_KizyGxH-DH2PGQ&usqp=CAU" alt="" class="">
+    <input type="text" id="city">
+    <button onclick="getWeather()">Search</button>
+</div>
+<div id="sub_con">
+    <div id="data"></div>
+    <div id="map"></div>
+</div>
+<div id="days"></div>
+</body>
+</html>
+
+<!-- //api.openweathermap.org/data/2.5/weather?q={city name}&appid={API key} -->
+
+<script>
+    let days_div = document.getElementById("days");
+    
+   let data_div = document.getElementById("data");
+    async function getWeather(){
+        try{
+        let city = document.getElementById("city").value;
+
+        let response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&exclude=minutely,hourly,alerts&appid=36a7e8e9625a4d096614f47b09118ba4&units=metric`);
+        let data = await response.json();
+        // https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lon}&units=metric&exclude=minutely,hourly,alerts&appid=08eafd6de1962fe0986514a7ea1f6d0d`
+        let [lat,lon] = [data.coord.lat, data.coord.lon];
+        let res = await fetch(`https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lon}&exclude=minutely,hourly,alerts&appid=36a7e8e9625a4d096614f47b09118ba4&units = metric`);
+        let data1 = await res.json();
+        let day = data1.daily;
+        let curr = data1.current;
+        let temp = data.main.temp;
+        // console.log("temp:",temp);
+        showWeather(data1);
+        // showWeather(data1);
+        appendMap(city);
+        getDays(day);
+        console.log("temp:",temp);
+        console.log("data:",data);
+        console.log("data1:",data1);
+        
+        console.log("day:",day)
+    }catch (err){
+        console.log("err:",err);
+    }
+}
+
+function appendMap(city){
+    let map = document.getElementById("map");
+    map.innerHTML = `<iframe
+  width="600"
+  height="450"
+  style="border:0"
+  loading="lazy"
+  allowfullscreen
+  src="https://www.google.com/maps/embed/v1/place?key=AIzaSyA587PTqZ99M5FDe92tAVLD7C5u5GEmups&q=${city}">
+</iframe>`
+}
+
+
+function showWeather(weather){
+    days.innerHTML = "";
+    data_div.innerHTML = "";
+    let temp = document.createElement("p");
+    temp.innerHTML = "<i class='fas fa-temperature-high' style='font-size:28px;color:orange'></i>      " +(`Temp - ${(weather.current.temp-273.15).toFixed(2)} °C`);
+    // temp.innerText =`Temp - ${(weather.current.temp-273.15).toFixed(2)} °C`;
+
+    let clouds = document.createElement("p");
+    // clouds.textContent = `Clouds - ${weather.current.clouds}%`;
+    clouds.innerHTML = "<i class='fas fa-cloud-sun' style='font-size:28px;color:skyblue'></i>   " + (`Clouds - ${weather.current.clouds}%`);
+
+    let pressure = document.createElement("p");
+    pressure.innerText = `Pressure - ${weather.current.pressure} mbar`;
+
+
+    let humidity = document.createElement("p");
+    humidity.innerText = `Humidity - ${weather.current.humidity} %RH`;
+
+    let min_temp = document.createElement("p");
+    min_temp.innerHTML = "<i class='fas fa-temperature-low' style='font-size:28px;color:navy'></i>      " +(`Min_temp - ${(weather.daily[0].temp.min-273.15).toFixed(2)} °C`);
+
+    let max_temp = document.createElement("p");
+    max_temp.innerHTML = "<i class='fas fa-temperature-high' style='font-size:28px;color:red'></i>      " +(`Max_temp - ${(weather.daily[0].temp.max-273.15).toFixed(2)} °C`);
+
+    let sunrise = document.createElement("p");
+    var d = new Date(0);
+    d.setUTCSeconds(weather.current.sunrise);
+    // sunrise.innerText = `Sunrise - ${d.toLocaleTimeString()}`;
+    sunrise.innerHTML = "<i class='fas fa-sun' style='font-size:28px;color:orange'></i>   " + (`Sunrise - ${d.toLocaleTimeString()}`);
+
+    let sunset = document.createElement("p");
+    var d1 = new Date(0);
+    d1.setUTCSeconds(weather.current.sunset);
+    // sunset.innerText = `Sunset - ${d1.toLocaleTimeString()}`;
+    sunset.innerHTML = "<i class='fas fa-moon' style='font-size:28px;color:blue'></i>   " + (`Sunset - ${d1.toLocaleTimeString()}`);
+
+    let wind = document.createElement("p");
+    wind.innerText = `WindSpeed - ${weather.current.wind_speed} m/s`;
+    wind.innerHTML = "<i class='fas fa-fan' style='font-size:28px;color:blue'></i>   " + (`WindSpeed - ${weather.current.wind_speed} m/s`);
+
+    data_div.append(temp, pressure,humidity,sunrise,sunset,clouds,wind,min_temp,max_temp);
+    
+
+}
+
+async function getDays(arr){
+    arr.map(function(el,ind){
+       let div1 = document.createElement("div");
+       div1.setAttribute("class","box1");
+
+       let div2 = document.createElement("div");
+       div2.setAttribute("class","box2");
+       div2.innerHTML = date(ind);
+
+        var img=document.createElement("img");
+        img.setAttribute("src",`http://openweathermap.org/img/wn/${el.weather[0].icon}@2x.png`);
+        img.setAttribute("class", "imge");
+
+        var min=document.createElement("p");
+        let minimum=Math.floor(Number(el.temp.min))
+        min.innerHTML=`Min:-  ${(minimum-273.15).toFixed(2)} ℃`;
+        var max=document.createElement("p");
+        let maximum=Math.floor(Number(el.temp.max))
+        max.innerHTML=`Max:-  ${(maximum-273.15).toFixed(2)} ℃`;
+
+        div1.append(div2,img,min,max);
+        days_div.append(div1);
+
+    });
+}
+
+function date(week){
+        let weekDay=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+        let d = new Date()
+        let current=Number(d.getDay());
+        current+=Number(week);
+        if(current>6){
+            current=current-7;
+        }
+        return weekDay[current];
+    }
+</script>
+
